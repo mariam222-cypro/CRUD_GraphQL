@@ -1,32 +1,11 @@
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 import strawberry
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "postgresql://user:password@localhost:5432/mydatabase"
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Define User model
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    age = Column(Integer)
+from backend.database import SessionLocal, engine, Base
+from backend.models import User
+from backend.schemas import UserType, CreateUserInput
 
 Base.metadata.create_all(bind=engine)
-
-# Define GraphQL Schema
-@strawberry.type
-class UserType:
-    id: int
-    name: str
-    email: str
-    age: int
 
 @strawberry.type
 class Query:
@@ -40,9 +19,9 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def create_user(self, name: str, email: str, age: int) -> UserType:
+    def create_user(self, input: CreateUserInput) -> UserType:
         db = SessionLocal()
-        user = User(name=name, email=email, age=age)
+        user = User(name=input.name, email=input.email, age=input.age)
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -50,8 +29,7 @@ class Mutation:
         return user
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
+graphql_app = GraphQLRouter(schema)
 
-# FastAPI App
 app = FastAPI()
-gql_router = GraphQLRouter(schema)
-app.include_router(gql_router, prefix="/graphql")
+app.include_router(graphql_app, prefix="/graphql")
