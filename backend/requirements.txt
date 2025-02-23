@@ -1,5 +1,0 @@
-fastapi
-strawberry-graphql
-uvicorn
-sqlalchemy
-psycopg2
