@@ -1,0 +1,31 @@
+#To run the server   
+>> nodemon server.js
+
+#Create User
+{
+  "query": "mutation createUser(name: Asmaa, email: asmaa@gmail.com"
+}
+
+
+#Update User
+{
+  "query": "mutation createUser(name: Mai, email: mai@gmail.com"
+}
+
+
+#Delete User
+{
+  "query": "mutation deleteUser(id:6)"
+
+}
+
+#Read User
+{
+"query": "query getUser(id:3)"
+}
+
+
+Read all Users
+{
+"query": "query getUsers"
+}
